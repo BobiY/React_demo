@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://npmcdn.com/react@15.3.1/dist/react.js"></script>
+    <script src="https://npmcdn.com/react-dom@15.3.1/dist/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+  </head>
+  <body>
+     <div id = "app"></div>
+  </body>
+  <!--<script type="text/javascript">
+     const divElement = React.createElement("div",null,"Hello World")
+     ReactDOM.render(divElement,document.getElementById("app"))
+  </script>-->
+  <!--<script type="text/babel">
+     const divElement = <div>{"Hello World"}</div>
+     ReactDOM.render(divElement,document.getElementById("app"))
+  </script>-->
+  <script type="text/javascript">
+    const divElement = React.createFactory("div")
+    const div = divElement(null,"Hello World")
+    ReactDOM.render(div,document.getElementById("app"))
+  </script>
+</html>

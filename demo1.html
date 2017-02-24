@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://npmcdn.com/react@15.3.1/dist/react.js"></script>
+    <script src="https://npmcdn.com/react-dom@15.3.1/dist/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+  </head>
+  <body>
+      <div id = "app"></div>
+  </body>
+  <script type="text/babel">
+        // es6 语法创建的组件
+        class A extends React.Component{
+          constructor(props) {
+            super()
+          }
+          render(){
+            return <b>{"1111"}</b>
+          }
+        }
+        class App extends React.Component {
+          constructor(props) {
+              super();
+              this.state = {
+                val:""
+              }
+          }
+          handleChange(e){
+            console.log(e.target.value);
+            this.setState({
+              val:e.target.val
+            })
+          }
+          render(){
+            return (<select multiple={true} value={['B', 'C']} onChange = {this.handleChange.bind(this)}>
+                      <option value="A">Apple</option>
+                      <option value="B">Banana</option>
+                      <option value="C">Cranberry</option>
+                    </select>)
+          }
+          componentDidMount(){
+            console.log(React.Children.toArray(this.props.children));
+          }
+        }
+        //下面这种组件叫做无状态组件
+        //const App = props => <span><b></b></span>
+        ReactDOM.render(<App></App>,document.getElementById('app'))
+  </script>
+</html>
