@@ -83,4 +83,15 @@
         babel：https://zhangwang1990.gitbooks.io/reactenlightenment/content/React%E5%92%8CBabel%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8.html
         Form 组件：
 
-                
+        React 的顶层API
+
+        使用 React 组件库
+
+        1. react-bootstrap（页面美化，响应式，它是基于bootstrap3的，当然在前面的回答中也有一个基于bootstrap4的项目reactstrap），当然还有各种实现了google material design风格的类库
+        2. react-router，前端分页，作为spa应用的必备
+        3. redux，不用说了，一个是实现了flux单向数据流管理的工具，facebook自己也有一个类似的叫做relay，但是它的知识栈更广。
+        4. fixed-data-table，facebook出品的datagrid组件
+        5. 增强型的input组件，react-wigets，提供了很多使用的组件
+        6. 还有一个notification和提示用户页面加载的.
+
+        https://www.awesomes.cn/subject/react
