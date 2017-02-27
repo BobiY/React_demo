@@ -1,0 +1,100 @@
+
+       React的学习从 Hello World 开始，这里只是引导，React 的语法看起来想下面这样：
+
+          ReactDOM.render(
+           <span>Hello World</sapn>,
+           document.getElementById("app"));
+      上面的这段代码，就会在一个 span 标签中渲染出 Hello World。
+      在接下来的几个小节中将大体的为你介绍怎么使用 React，你将学会怎么通过组件和元素去创建你的应用，一旦你掌握了这些只是，你就可以通过件单的组件，去构建复杂的应用。
+
+      1.JSX简介
+          (1) 考虑一下下面这个变量的声明
+                 const div = <div>Hello World !</div>;
+               这个标签语法既不是字符串也不是HTML；
+               上面这种语法就是JSX，他是js的一种扩展语法。React 使用这种语法来描述 UI 应该是什么样子的，JSX为你提供了一个模板，并且他拥有Javascript的所有语法。
+          (2) 在JSX中嵌入表达式
+
+              你可以在JSX中嵌入Javascript表达式，并将其放入大括号中：
+
+              function formatName(user) {
+                  return user.firstName + ' ' + user.lastName;
+               }
+
+              const user = {
+                  firstName: 'Harper',
+                  lastName: 'Perez'
+              };
+
+              const element = (
+                  <h1>
+                   Hello, {formatName(user)}!
+                  </h1>
+              );
+
+              ReactDOM.render(
+                  element,
+                  document.getElementById('root')
+              );
+              可以将JSX拆分成多行的，这样可以增加代码的可读性；虽然不是必需的，但当执行此操作时，我们还建议将其括在括号中，这样可以避免一些以外的错误。
+          (3) JSX是一个表达式
+              编译后，JSX表达式成为常规JavaScript对象。
+
+              这意味着你可以在if语句和for循环中使用JSX ，将它分配给变量，接受它作为参数，并从函数返回它：
+
+              function getGreeting(user) {
+                if (user) {
+                  return <h1>Hello, {formatName(user)}!</h1>;
+                }
+                return <h1>Hello, Stranger.</h1>;
+              }
+          (4) 使用JSX指定属性
+              您可以使用引号将字符串文字指定为属性：
+
+              const element = <div tabIndex="0"></div>;
+              您还可以使用花括号将JavaScript表达式嵌入属性：
+
+              const element = <img src={user.avatarUrl}></img>;
+              在属性中嵌入JavaScript表达式时，不要在大括号中加引号。否则JSX会将该属性视为字符串文字而不是表达式。您应该使用引号（对于字符串值）或花括号（对于表达式），但不能在同一属性中同时出现这两种情况。
+          (5) 使用JSX指定子项
+              如果标记为空，您可以立即关闭它/>，如XML：
+
+              const element = <img src={user.avatarUrl} />;
+              JSX标签可能包含子元素：
+
+              const element = (
+                <div>
+                  <h1>Hello!</h1>
+                  <h2>Good to see you here.</h2>
+                </div>
+              );
+              警告：
+              由于JSX比HTML更接近JavaScript，React DOM使用“驼峰式”属性命名约定而不是HTML属性名称。
+              例如在JSX中，class成为className，tabindex变tabIndex。
+          (6) JSX表示对象
+              Babel将JSX编译为React.createElement()调用。
+
+              这两个例子是相同的：
+
+              const element = (
+                <h1 className="greeting">
+                  Hello, world!
+                </h1>
+              );
+              const element = React.createElement(
+                'h1',
+                {className: 'greeting'},
+                'Hello, world!'
+              );
+              React.createElement() 执行一些检查，以帮助你编写无错误的代码，但本质上它创建一个对象像这样：
+
+              const element = {
+                type: 'h1',
+                props: {
+                  className: 'greeting',
+                  children: 'Hello, world'
+                }
+              };
+              这些对象称为“React元素”。你可以把它们想象成你想在屏幕上看到的内容。React读取这些对象，并使用它们构造DOM并保持其为最新。
+
+              我们将在下一节中探索渲染React元素到DOM。
+          总结：本节中简单的学习了一下 JSX 的语法，他有很多神奇的地方，但是在这里你没有必要去深究实现的原理，在下面的学习中，将会为你一一展开原理的学习。

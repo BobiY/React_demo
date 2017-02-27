@@ -1,0 +1,198 @@
+
+
+    (1) 组件(component)和属性(props)
+
+        组件允许你将 UI 拆分为独立的，可重用的部分，并单独考虑每个部分要实现的功能和页面呈现。
+
+        从概念上讲，组件就像JavaScript函数。它们接受任意输入（称为“props”），并返回应该出现在页面上的React元素。
+
+    (2) 编写组件(component)
+
+        定义组件的最简单的方法是编写JavaScript函数：
+
+        function Welcome(props) {
+          return <h1>Hello, {props.name}</h1>;
+        }
+        此函数是有效的React组件，因为它接收“props”对象为参数，并返回React元素。我们把这样的组件称为“函数类组件”，因为它们是字面上的JavaScript函数。
+        这样的组件也称为“无状态组件”，因为在他里面不存在State，在下面将讲到。
+
+        您还可以使用ES6类来定义组件：
+
+        class Welcome extends React.Component {
+          render() {
+            return <h1>Hello, {this.props.name}</h1>;
+          }
+        }
+        上述两个组件从React的角度来看是等价的。
+
+        使用类的方式创建的组件有一些额外的功能，我们将在下面的章节中讨论。在那之前，我们将使用功能组件的简洁。
+    (3) 渲染组件
+        在上面的小节中，我们只遇到直接使用DOM标签定义的React元素：
+
+        const element = <div>Hello World</div>;
+        但是，可以用户定义的组件组件表示要渲染的元素：
+
+        const element = <Welcome name="Sara" />;
+        当React看到表示用户自定义组件元素时，它将JSX属性作为对象传递给此组件。我们称这个对象为“props”。
+
+        例如，此代码在页面上呈现“Hello，Sara”：
+
+        function Welcome(props) {
+          return <h1>Hello, {props.name}</h1>;
+        }
+
+        const element = <Welcome name="Sara" />;
+        ReactDOM.render(
+          element,
+          document.getElementById('root')
+        );
+
+        让我们回顾一下在这个例子中会发生什么：
+
+        我们用ReactDOM.render()去渲染<Welcome name="Sara" />。
+        Welcome组件的Props接收到{name: 'Sara'}对象作为参数。
+        Welcome组件返回一个<h1>Hello, Sara</h1>元素作为输出。
+        React DOM有效地更新匹配到的DOM <h1>Hello, Sara</h1>。
+        警告：
+        必须以大写字母开头的英文名称作为组件名称。
+        例如，<div />表示一个DOM标签，但<Welcome />表示一个组件，而且Welcome在要在引用的作用于内。
+    (4) 撰写组件
+        组件可以引用其他定义好的组件。这使的我们可以将一些常用的功能抽象为一个组件以进行复用。一个按钮，一个弹窗，一个对话框，一个表格：在React应用程序中，这些通常都是可复用的组件。
+
+        例如，我们可以创建一个App组件去多次渲染Welcome组件：
+
+        function Welcome(props) {
+          return <h1>Hello, {props.name}</h1>;
+        }
+
+        function App() {
+          return (
+            <div>
+              <Welcome name="Sara" />
+              <Welcome name="Cahal" />
+              <Welcome name="Edite" />
+            </div>
+          );
+        }
+
+        ReactDOM.render(
+          <App />,
+          document.getElementById('root')
+        );
+
+        通常，在创建一个引得React应用程序时，都会创建一个顶部最外层组件App。但是，如果将React应用到现有的应用程序中，则可以从小组件开始自下而上开始构建 UI ，并逐渐按照视图的层次结构直到顶层。
+
+        警告：
+        组件必须返回单个根元素包括的多行元素。这就是为什么我们添加了一个<div>包含所有的<Welcome />元素。
+    (5) 抽象组件
+        不要害怕将组件拆分成更小的组件。
+
+        例如，考虑这个Comment组件：
+
+        function Comment(props) {
+          return (
+            <div className="Comment">
+              <div className="UserInfo">
+                <img className="Avatar"
+                  src={props.author.avatarUrl}
+                  alt={props.author.name}
+                />
+                <div className="UserInfo-name">
+                  {props.author.name}
+                </div>
+              </div>
+              <div className="Comment-text">
+                {props.text}
+              </div>
+              <div className="Comment-date">
+                {formatDate(props.date)}
+              </div>
+            </div>
+          );
+        }
+
+        上面的组件接受author（对象），text（字符串）和date（日期）作为Props，并展示了社交媒体网站上的评论界面。
+
+        这个组件看起来可读性不好，因为所有的结构都在一起，而且也没对少可复用性，让我们从中提取几个组件。
+
+        首先，我们将提取Avatar：
+
+        function Avatar(props) {
+          return (
+            <img className="Avatar"
+              src={props.user.avatarUrl}
+              alt={props.user.name}
+            />
+          );
+        }
+        在Avatar不需要知道它正在呈现内Comment。这就是为什么我们给它的prop一个更通用的名称：user而不是author。
+
+        我们建议从组件自己的角度来命名道具，而不是使用它的上下文。
+
+        我们现在可以简化Comment一点：
+
+        function Comment(props) {
+          return (
+            <div className="Comment">
+              <div className="UserInfo">
+                <Avatar user={props.author} />
+                <div className="UserInfo-name">
+                  {props.author.name}
+                </div>
+              </div>
+              <div className="Comment-text">
+                {props.text}
+              </div>
+              <div className="Comment-date">
+                {formatDate(props.date)}
+              </div>
+            </div>
+          );
+        }
+        接下来，我们将提取UserInfo呈现Avatar用户名称旁边的组件：
+
+        function UserInfo(props) {
+          return (
+            <div className="UserInfo">
+              <Avatar user={props.user} />
+              <div className="UserInfo-name">
+                {props.user.name}
+              </div>
+            </div>
+          );
+        }
+        这让我们Comment进一步简化：
+
+        function Comment(props) {
+          return (
+            <div className="Comment">
+              <UserInfo user={props.author} />
+              <div className="Comment-text">
+                {props.text}
+              </div>
+              <div className="Comment-date">
+                {formatDate(props.date)}
+              </div>
+            </div>
+          );
+        }
+
+        抽象组件起初可能看起来像增加了我们的工作量工作，但是如果在一个应用中有大量的复用组件，那么你的工作量将会因为你前期的抽象组件而大大减少。经验告诉我们，如果你的UI的一部分被多次使用（Button，Panel，Avatar），或者组件本身足够复杂（App，FeedStory，Comment，这种情况见与组件库的封装，不一定在你的应用中会重用），那么就有可能会是一个可重用的组件。
+    (6) prosp是只读的
+        无论你将一个组件声明为一个函数或类，它都不能修改自己的props。考虑这个sum功能：
+
+        function sum(a, b) {
+          return a + b;
+        }
+        这样的函数被称为“纯函数”，因为它们不能尝试改变它的输入，并且对于相同的输入总是返回相同的结果。
+
+        相反，下面这个函数是不纯的，因为它改变自己的输入：
+
+        function withdraw(account, amount) {
+          account.total -= amount;
+        }
+        React非常灵活，但它有一个严格的规则：
+
+        所有React组件必须像纯函数那样运行，也就是不能去修改自身的props。
+
+        当然，应用程序UI是动态的，随时间变化。在下一节中，我们将介绍“状态（state）”的新概念。状态允许React组件响应用户操作，网​​络响应和其他任何内容而随时间更改其输出，而不违反此规则。

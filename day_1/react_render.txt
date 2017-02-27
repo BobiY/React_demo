@@ -1,0 +1,55 @@
+
+    (1) 渲染元素
+        元素是 React 应用程序最小的组成单位，它反映了你想在页面显示的内容。
+
+           var div = <div>Hello World !</div>
+        与HTML标签不同的是，React 元素是纯对象，所以创建起来方式简单；React DOM 可以及时的将你创建的 React 元素呈现在HTML 页面中，并实时更新。
+        注意：这里要将组建与元素区分开，组建中除了包含元素以外，还包含了各种方法，所以可以进行一些元素的操作，而元素仅仅是为了呈现你期望的视图。
+
+    (2) 将元素呈现到DOM中
+        假设你的HTML文件中有下面这个 div 标签：
+
+        <div id="root"></div>
+        我们将这个节点称为“根”DOM节点，因为其中的所有内容将由React DOM管理。
+
+        “根”DOM节点是用来渲染React DOM 的，如果你的应用是初次创建，建议你使用单个“根”DOM节点，如果是已构建好的应用，建议使用多个孤立的“根”DOM节点。
+
+        要将React元素渲染到根DOM节点，请将要渲染的React DOM 和“根”DOM节点都传递给ReactDOM.render()：
+
+        const element = <h1>Hello, world</h1>;
+        ReactDOM.render(
+          element,
+          document.getElementById('root')
+        );
+
+        上面的代码将在页面上显示“Hello World”。
+   (3) 更新渲染元素
+        React元素是不可变的。创建元素后，你不能更改其子元素或属性。元素像电影中的单个帧：它表示某个时间点的UI。
+
+        根据我们迄今为止的知识，更新UI的唯一方法是创建一个新的元素，并传递给它ReactDOM.render()。
+
+        考虑这个滴答时钟示例：
+
+        function tick() {
+          const element = (
+            <div>
+              <h1>Hello, world!</h1>
+              <h2>It is {new Date().toLocaleTimeString()}.</h2>
+            </div>
+          );
+          ReactDOM.render(
+            element,
+            document.getElementById('root')
+          );
+        }
+
+        setInterval(tick, 1000);
+
+        ReactDOM.render()从setInterval()回调中每隔一秒调用一次。
+
+        注意：
+        在实践中，大多数React应用程序只调用ReactDOM.render()一次。在接下来的章节中，我们将学习如何将这样的代码封装成有状态的组件。
+        建议你依次学习，不要跳过，因为它们相互建立。
+   (4) 只响应更新所需的
+       React DOM将元素及其子元素与上一元素进行比较，并且仅应用DOM更新以使DOM达到所需状态。这里可能说明的不很清楚，之所以能实现这样子的按需更新元素，主要归功于React 的 differ 算法。后面的章节会有讲解。
+       所以在思考构建 UI 的时候，你要考虑的是所有时刻的得效果，而不是一个时刻，或者一段时间。

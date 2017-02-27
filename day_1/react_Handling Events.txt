@@ -1,0 +1,111 @@
+
+
+     (1) 处理事件
+        使用React元素处理事件与处理DOM元素上的事件非常相似。但有一些句法差异：
+
+        React事件使用驼峰式命名，而不是全小写命名。
+        使用JSX你传递一个函数作为事件处理程序，而不是一个字符串。
+        例如，HTML：
+
+        <button onclick="activateLasers()">
+          Activate Lasers
+        </button>
+        在React中略有不同：
+
+        <button onClick={activateLasers}>
+          Activate Lasers
+        </button>
+        另一个区别是，你不能返回false以防止React中的默认行为。您必须明确的调用preventDefault去组织React的默认行为。例如，使用纯HTML，为了防止打开新页面的默认链接行为，您可以写：
+
+        <a href="#" onclick="console.log('The link was clicked.'); return false">
+          Click me
+        </a>
+        在React中，这可以改为：
+
+        function ActionLink() {
+          function handleClick(e) {
+            e.preventDefault();
+            console.log('The link was clicked.');
+          }
+
+          return (
+            <a href="#" onClick={handleClick}>
+              Click me
+            </a>
+          );
+        }
+        这里，e是一个综合事件。React根据W3C规范定义这些综合事件，因此您不需要担心跨浏览器兼容性。有关详细信息，请参阅SyntheticEvent参考指南。
+
+        当使用React时，一般不需要调用addEventListener在创建后向DOM元素添加事件侦听器。相反，只是在最初呈现元素时提供侦听器。
+
+        当你使用ES6类定义一个组件时，一个常见的模式是事件处理程序是类上的一个方法。例如，此Toggle组件呈现允许用户在“开”和“关”状态之间切换的按钮：
+
+        class Toggle extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = {isToggleOn: true};
+
+            // This binding is necessary to make `this` work in the callback
+            this.handleClick = this.handleClick.bind(this);
+          }
+
+          handleClick() {
+            this.setState(prevState => ({
+              isToggleOn: !prevState.isToggleOn
+            }));
+          }
+
+          render() {
+            return (
+              <button onClick={this.handleClick}>
+                {this.state.isToggleOn ? 'ON' : 'OFF'}
+              </button>
+            );
+          }
+        }
+
+        ReactDOM.render(
+          <Toggle />,
+          document.getElementById('root')
+        );
+
+        你必须注意this在JSX回调中的意思。在JavaScript中，类方法默认不绑定。如果你忘记绑定this.handleClick并传递给它onClick，this将undefined在函数实际被调用时。
+
+        这不是React特定的行为; 它是JavaScript中函数如何工作的一部分。一般来说，如果你引用一个方法，并且这个方法后面没有()的话，例如onClick={this.handleClick}，你应该绑定该方法到当前组件的this对象上。
+
+        你如何默认的将事件绑定在this对象上，有两种方法可以解决这个问题。如果您使用的是实验属性初始值设定语法，您可以使用属性初始值设定工具来正确地绑定回呼：
+
+        class LoggingButton extends React.Component {
+          // This syntax ensures `this` is bound within handleClick.
+          // Warning: this is *experimental* syntax.
+          handleClick = () => {
+            console.log('this is:', this);
+          }
+
+          render() {
+            return (
+              <button onClick={this.handleClick}>
+                Click me
+              </button>
+            );
+          }
+        }
+        默认情况下，在Create React App中启用此语法。
+
+        如果不使用属性初始化语法，则可以在回调中使用箭头函数：
+
+        class LoggingButton extends React.Component {
+          handleClick() {
+            console.log('this is:', this);
+          }
+
+          render() {
+            // This syntax ensures `this` is bound within handleClick
+            return (
+              <button onClick={(e) => this.handleClick(e)}>
+                Click me
+              </button>
+            );
+          }
+        }
+        此语法的问题是每次LoggingButton呈现时都会创建不同的回调。在大多数情况下，这种事不能使用的。然而，如果这个回调作为一个props传递给下面的组件，这些组件可能会做额外的重新渲染。所以我们一般建议在构造函数中使用绑定或使用属性初始化语法，以避免这种性能问题。

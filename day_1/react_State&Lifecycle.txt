@@ -1,0 +1,372 @@
+
+    (1)状态(state)和生命周期( Lifecycle)
+        你应该还记得前面示例中的滴答时钟示例。
+
+        到目前为止，我们只学习了一种更新UI的方法。
+
+        就是调用ReactDOM.render()改变渲染的输出：
+
+        function tick() {
+          const element = (
+            <div>
+              <h1>Hello, world!</h1>
+              <h2>It is {new Date().toLocaleTimeString()}.</h2>
+            </div>
+          );
+          ReactDOM.render(
+            element,
+            document.getElementById('root')
+          );
+        }
+
+        setInterval(tick, 1000);
+
+        在本节中，我们将学习如何使Clock组件真正可重用和封装。它将设置自己的计时器并每秒更新一次。
+
+        我们可以从封装时钟的外观开始：
+
+        function Clock(props) {
+          return (
+            <div>
+              <h1>Hello, world!</h1>
+              <h2>It is {props.date.toLocaleTimeString()}.</h2>
+            </div>
+          );
+        }
+
+        function tick() {
+          ReactDOM.render(
+            <Clock date={new Date()} />,
+            document.getElementById('root')
+          );
+        }
+
+        setInterval(tick, 1000);
+
+        然而，它忽略了一个重要的细节：我们需要的是每秒更新一次时间显示，而非整个组件。
+
+        理想情况下，我们要这一次的重写，要使Clock拥有更新本身的本领：
+
+        ReactDOM.render(
+          <Clock />,
+          document.getElementById('root')
+        );
+        要实现这一点，我们需要添加“状态”到Clock组件。
+
+        状态（state）类似于props，但它是私有的，完全由组件控制。
+
+        我们之前提到，定义为类的组件有一些额外的特性。而这个State就是：一个只有类可用的功能。
+    (2) 将函数转换为类
+        您可以通过五个步骤将函数组件转换为类组件：
+
+        1.创建与扩展名相同的ES6类React.Component。
+
+        2.添加一个单一的空方法调用render()。
+
+        3.将函数的主体移动到render()方法中。
+
+        5.替换props用this.props的render()机构。
+
+        6.删除剩余的空函数声明。
+
+        class Clock extends React.Component {
+          render() {
+            return (
+              <div>
+                <h1>Hello, world!</h1>
+                <h2>It is {this.props.date.toLocaleTimeString()}.</h2>
+              </div>
+            );
+          }
+        }
+
+        Clock 现在定义为一个类而不是一个函数。
+
+        这使我们可以使用额外的功能，如局部状态和生命周期钩子。
+    (3) 将本地状态添加到类
+        我们把data从props转换为state分为是三个步骤：
+
+        1）在render()方法中将替换this.props.date为：this.state.date
+
+        class Clock extends React.Component {
+          render() {
+            return (
+              <div>
+                <h1>Hello, world!</h1>
+                <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+              </div>
+            );
+          }
+        }
+        2）添加一个类构造函数，它分配初始值this.state：
+
+        class Clock extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+          }
+
+          render() {
+            return (
+              <div>
+                <h1>Hello, world!</h1>
+                <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+              </div>
+            );
+          }
+        }
+        注意我们如何传递props给基础构造函数：
+
+          constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+          }
+        类组件应该总是调用基本构造函数props。
+
+        3）date从<Clock />元件上移除绑定：
+
+        ReactDOM.render(
+          <Clock />,
+          document.getElementById('root')
+        );
+        我们稍后将定时器代码添加到组件本身。
+
+        结果如下所示：
+
+        class Clock extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+          }
+
+          render() {
+            return (
+              <div>
+                <h1>Hello, world!</h1>
+                <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+              </div>
+            );
+          }
+        }
+
+        ReactDOM.render(
+          <Clock />,
+          document.getElementById('root')
+        );
+
+        接下来，我们将Clock设置自己的计时器，并每秒更新一次。
+    (4) 向类添加生命周期方法
+        在具有许多组件的应用程序中，释放组件在销毁时占用的资源非常重要。
+
+        我们想要在第一次渲染到DOM 时设置一个计时器Clock。这在React中称为“安装”。
+
+        我们还想清除定时器，只要生成的DOM Clock被删除。这在React中称为“卸载”。
+
+        我们可以在组件类上声明特殊方法，以便在组件装入和卸载时运行一些代码：
+
+        class Clock extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+          }
+
+          componentDidMount() {
+
+          }
+
+          componentWillUnmount() {
+
+          }
+
+          render() {
+            return (
+              <div>
+                <h1>Hello, world!</h1>
+                <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+              </div>
+            );
+          }
+        }
+        这些方法称为“生命周期钩子”。
+
+        componentDidMount()将在 React DOM 渲染到浏览器DOM以后执行,这是设置计时器的好地方：
+
+          componentDidMount() {
+            this.timerID = setInterval(
+              () => this.tick(),
+              1000
+            );
+          }
+        注意我们如何保存计时器ID this。
+
+        虽然this.state是由React本身设置的，并且this.state有特殊的意义，如果你需要存储不用于视觉输出的东西，你可以手动地将要添加的东西添加到当前的组件类上。
+
+        如果你不需要使用render()去更新视图，它不应该在状态。
+
+        我们将在componentWillUnmount()生命周期钩子中清除计时器：
+
+          componentWillUnmount() {
+            clearInterval(this.timerID);
+          }
+        最后，我们将实现每秒tick()运行的方法。
+
+        它将this.setState()用于计划组件本地状态的更新：
+
+        class Clock extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+          }
+
+          componentDidMount() {
+            this.timerID = setInterval(
+              () => this.tick(),
+              1000
+            );
+          }
+
+          componentWillUnmount() {
+            clearInterval(this.timerID);
+          }
+
+          tick() {
+            this.setState({
+              date: new Date()
+            });
+          }
+
+          render() {
+            return (
+              <div>
+                <h1>Hello, world!</h1>
+                <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+              </div>
+            );
+          }
+        }
+
+        ReactDOM.render(
+          <Clock />,
+          document.getElementById('root')
+        );
+
+        现在时钟每秒钟滴答。
+
+        让我们快速回顾一下发生了什么以及调用方法的顺序：
+
+        1）当<Clock />传递给ReactDOM.render()时，React调用组件的Clock构造函数。由于Clock需要显示当前时间，它的this.state中包括当前时间的对象初始化。在后面我们将更新此状态。
+
+        2）React 然后调用 Clock 组件的 render() 方法。这是React如何决定应该在屏幕上显示什么的依据。React然后更新DOM以匹配Clock渲染输出。
+
+        3）当Clock输出插入到DOM中时，React调用componentDidMount()生命周期钩子。在它内部，Clock组件要求浏览器设置一个定时器，tick()每秒钟调用一次。
+
+        4）每秒浏览器调用该tick()方法。在其中，Clock组件通过setState()使用包含当前时间的对象来UI更新。由于setState()调用，React知道状态已更改，并render()再次调用方法来了解应该在屏幕上显示什么。这一次，this.state.date在render()方法中会有所不同，因此渲染输出将包括更新的时间。React相应地更新DOM。
+
+        5）如果Clock组件从DOM中删除，React会调用componentWillUnmount()生命周期钩子，因此定时器停止。
+    (5) 正确使用状态
+        关于setState()的三件事你必须知道。
+
+        不要直接修改状态
+        例如，这将不会重新渲染组件：
+
+        // Wrong
+        this.state.comment = 'Hello';
+        相反，请使用setState()：
+
+        // Correct
+        this.setState({comment: 'Hello'});
+        只有在构造函数初始化state时可以直接对this.state赋值。
+
+        状态更新可能会异步
+        React可以将多个setState()调用批处理为单个更新以实现性能。
+
+        因为this.props和this.state可能异步更新，你不应该依赖它们的值来计算下一个状态。
+
+        例如，此代码可能无法更新计数器：
+
+        // Wrong
+        this.setState({
+          counter: this.state.counter + this.props.increment,
+        });
+        要解决它，使用setState()接受函数而不是对象的第二种形式。该函数将接收先前的状态作为第一个参数，并将应用更新时的props作为第二个参数：
+
+        // Correct
+        this.setState((prevState, props) => ({
+          counter: prevState.counter + props.increment
+        }));
+        我们使用上面的箭头函数，但它也可以与常规函数一起使用：
+
+        // Correct
+        this.setState(function(prevState, props) {
+          return {
+            counter: prevState.counter + props.increment
+          };
+        });
+        状态更新合并
+        当您调用setState()时，React会将您提供的对象合并到当前状态。
+
+        例如，您的状态可能包含几个独立变量：
+
+          constructor(props) {
+            super(props);
+            this.state = {
+              posts: [],
+              comments: []
+            };
+          }
+        然后您可以通过单独的setState()调用独立地更新它们：
+
+          componentDidMount() {
+            fetchPosts().then(response => {
+              this.setState({
+                posts: response.posts
+              });
+            });
+
+            fetchComments().then(response => {
+              this.setState({
+                comments: response.comments
+              });
+            });
+          }
+      (6) 数据流向下
+          父组件和子组件都不能知道某个组件是有状态的还是无状态的，并且它们不应该关心它是否被定义为函数或类。
+
+          这就是为什么状态通常被称为局部或封装。除了拥有和设置它的组件之外的任何组件都不能访问它。
+
+          组件可以选择将其状态作为props传递给其子组件：
+
+          <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+          这也适用于用户定义的组件：
+
+          <FormattedDate date={this.state.date} />
+          该FormattedDate组件将接收date作为他的props，你不会知道这个props是来自于Clock的状态，还是来自于Clock的props，或FormattedDate组件是用函数类型定义的：
+
+          function FormattedDate(props) {
+            return <h2>It is {props.date.toLocaleTimeString()}.</h2>;
+          }
+
+          这通常被称为“自顶向下”或“单向”数据流。任何状态总是由某个特定组件拥有，并且从该状态派生的任何数据或UI只能影响树中的“下面”组件。
+
+          如果你想象一个组件树作为props的瀑布，每个组件的状态就像一个额外的水源，它在任意点加入它，但也向下流。
+
+          为了显示所有组件都是真正隔离的，我们可以创建一个App渲染三个组件的组件<Clock>：
+
+          function App() {
+            return (
+              <div>
+                <Clock />
+                <Clock />
+                <Clock />
+              </div>
+            );
+          }
+
+          ReactDOM.render(
+            <App />,
+            document.getElementById('root')
+          );
+
+          每个Clock设置自己的定时器和独立更新。
+
+          在React应用程序中，组件是有状态的还是无状态的，被认为是可能随时间变化的组件的实现细节。ni可以在有状态组件内使用无状态组件，反之亦然。

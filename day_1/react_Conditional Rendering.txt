@@ -1,0 +1,202 @@
+
+     (1) 条件渲染
+          在React中，你可以创建封装所需要的不同组件。然后，您可以仅渲染其中的一些，具体需要渲染哪些取决于应用程序的状态。
+
+          React中的条件渲染与JavaScript中的条件工作方式相同。使用类似if的JavaScript运算符或条件运算符来创建表示当前状态的元素，并让React更新UI去匹配它们。
+
+          考虑这两个组件：
+
+          function UserGreeting(props) {
+            return <h1>Welcome back!</h1>;
+          }
+
+          function GuestGreeting(props) {
+            return <h1>Please sign up.</h1>;
+          }
+          我们将创建一个Greeting组件，根据用户是否登录显示这些组件之一：
+
+          function Greeting(props) {
+            const isLoggedIn = props.isLoggedIn;
+            if (isLoggedIn) {
+              return <UserGreeting />;
+            }
+            return <GuestGreeting />;
+          }
+
+          ReactDOM.render(
+            // Try changing to isLoggedIn={true}:
+            <Greeting isLoggedIn={false} />,
+            document.getElementById('root')
+          );
+
+          此示例根据isLoggedInprop 的值呈现不同的问候语。
+      (2) 元素变量
+          你可以使用变量来存储元素。这可以帮助你有条件地渲染组件的一部分，而其余输出不会更改。
+
+          考虑这两个代表注销和登录按钮的新组件：
+
+          function LoginButton(props) {
+            return (
+              <button onClick={props.onClick}>
+                Login
+              </button>
+            );
+          }
+
+          function LogoutButton(props) {
+            return (
+              <button onClick={props.onClick}>
+                Logout
+              </button>
+            );
+          }
+          在下面的例子中，我们将创建一个有状态的组件叫LoginControl。
+
+          它将呈现<LoginButton />或<LogoutButton />根据其当前状态。它还将渲染上一个<Greeting />示例：
+
+          class LoginControl extends React.Component {
+            constructor(props) {
+              super(props);
+              this.handleLoginClick = this.handleLoginClick.bind(this);
+              this.handleLogoutClick = this.handleLogoutClick.bind(this);
+              this.state = {isLoggedIn: false};
+            }
+
+            handleLoginClick() {
+              this.setState({isLoggedIn: true});
+            }
+
+            handleLogoutClick() {
+              this.setState({isLoggedIn: false});
+            }
+
+            render() {
+              const isLoggedIn = this.state.isLoggedIn;
+
+              let button = null;
+              if (isLoggedIn) {
+                button = <LogoutButton onClick={this.handleLogoutClick} />;
+              } else {
+                button = <LoginButton onClick={this.handleLoginClick} />;
+              }
+
+              return (
+                <div>
+                  <Greeting isLoggedIn={isLoggedIn} />
+                  {button}
+                </div>
+              );
+            }
+          }
+
+          ReactDOM.render(
+            <LoginControl />,
+            document.getElementById('root')
+          );
+
+
+         虽然声明变量和使用if语句是有条件地呈现组件的好方法，但有时您可能想使用较短的语法。有几种方法来内联JSX中的条件，如下所述。
+     (3) 如果使用逻辑&&运算符
+          你可以在JSX中嵌入任何表达式，将它们括在大括号中。这包括JavaScript逻辑&&运算符。它可以方便地有条件地包括一个元素：
+
+          function Mailbox(props) {
+            const unreadMessages = props.unreadMessages;
+            return (
+              <div>
+                <h1>Hello!</h1>
+                {unreadMessages.length > 0 &&
+                  <h2>
+                    You have {unreadMessages.length} unread messages.
+                  </h2>
+                }
+              </div>
+            );
+          }
+
+          const messages = ['React', 'Re: React', 'Re:Re: React'];
+          ReactDOM.render(
+            <Mailbox unreadMessages={messages} />,
+            document.getElementById('root')
+          );
+
+
+          它的工作原理，因为在JavaScript中，true && expression总是评估为expression，false && expression总是评估为false。
+
+          因此，如果条件是true，紧接着的元素&&将出现在输出中。如果是false，React将忽略并跳过它。
+      (4) 带条件运算符的内联Ifse
+          用于有条件地内联元素的另一种方法是使用JavaScript条件运算符condition ? true : false。
+
+          在下面的例子中，我们使用它来有条件地渲染一小块文本。
+
+          render() {
+            const isLoggedIn = this.state.isLoggedIn;
+            return (
+              <div>
+                The user is <b>{isLoggedIn ? 'currently' : 'not'}</b> logged in.
+              </div>
+            );
+          }
+          它也可以用于较大的表达式，虽然不太明显发生了什么：
+
+          render() {
+            const isLoggedIn = this.state.isLoggedIn;
+            return (
+              <div>
+                {isLoggedIn ? (
+                  <LogoutButton onClick={this.handleLogoutClick} />
+                ) : (
+                  <LoginButton onClick={this.handleLoginClick} />
+                )}
+              </div>
+            );
+          }
+          就像在JavaScript中一样，你可以根据你和你的团队考虑更多的可读性来选择合适的风格。还要记住，当条件变得太复杂时，可能是提取组件的好时机。
+      (5) 防止组件呈现
+          在极少数情况下，您可能希望组件隐藏自身，即使它由另一个组件呈现。要做这个返回null而不是其渲染输出。
+
+          在下面的例子中，根据<WarningBanner />被调用的prop的值来渲染warn。如果prop的值为false，则组件不呈现：
+
+          function WarningBanner(props) {
+            if (!props.warn) {
+              return null;
+            }
+
+            return (
+              <div className="warning">
+                Warning!
+              </div>
+            );
+          }
+
+          class Page extends React.Component {
+            constructor(props) {
+              super(props);
+              this.state = {showWarning: true}
+              this.handleToggleClick = this.handleToggleClick.bind(this);
+            }
+
+            handleToggleClick() {
+              this.setState(prevState => ({
+                showWarning: !prevState.showWarning
+              }));
+            }
+
+            render() {
+              return (
+                <div>
+                  <WarningBanner warn={this.state.showWarning} />
+                  <button onClick={this.handleToggleClick}>
+                    {this.state.showWarning ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              );
+            }
+          }
+
+          ReactDOM.render(
+            <Page />,
+            document.getElementById('root')
+          );
+
+
+          从组件的render方法返回null不会影响组件的生命周期方法。例如，componentWillUpdate并且componentDidUpdate将仍然被调用。
